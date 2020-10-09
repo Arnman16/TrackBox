@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User: {{ object.username }}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm-12">
+      <v-card-text class="text-center">
+      <h2>{{ object.username }}</h2>
+      {% if object.name %}
+        <p>{{ object.name }}</p>
+      {% endif %}
+    </v-card-text>
+    </div>
+  </div>
+
+{% if object == request.user %}
+<!-- Action buttons -->
+<div class="row">
+
+  <div class="col-sm-12">
+    <p>
+      <v-btn dark color="navy" :style="{left: '50%', transform:'translateX(-50%)'}" href="{% url 'users:update' %}">My Info</v-btn >
+      </p>
+      <p>
+      <v-btn dark color="navy" :style="{left: '50%', transform:'translateX(-50%)'}" href="{% url 'account_email' %}">E-Mail</v-btn >
+        </p>
+    <!-- Your Stuff: Custom user template urls -->
+  </div>
+
+</div>
+<!-- End Action buttons -->
+{% endif %}
+
+
+</div>
+{% endblock content %}
+
