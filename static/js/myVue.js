@@ -1,6 +1,7 @@
 
 // Vue.use(Vuex)
 
+
 const store = new Vuex.Store({
     state: {
         count: 0,
@@ -70,9 +71,46 @@ mainApp = new Vue({
         selectedInstrument: Object,
         selectedIndex: null,
         showInstruments: false,
+        config: {
+            delimiter: ",",	// auto-detect
+            newline: "",	// auto-detect
+            quoteChar: '"',
+            escapeChar: '"',
+            header: false,
+            transformHeader: undefined,
+            dynamicTyping: false,
+            preview: 0,
+            encoding: "",
+            worker: false,
+            comments: false,
+            step: undefined,
+            complete: function (results, file) {
+                console.log("Parsing complete:", results, file);
+            },
+            error: undefined,
+            download: false,
+            downloadRequestHeaders: undefined,
+            downloadRequestBody: undefined,
+            skipEmptyLines: true,
+            chunk: undefined,
+            chunkSize: undefined,
+            fastMode: undefined,
+            beforeFirstChunk: undefined,
+            withCredentials: undefined,
+            transform: undefined,
+            delimitersToGuess: [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP]
+        },
+        importFileList: null,
         gyroData: Object,
+        importDialog: false,
+        importMessage: '',
         selectedCategory: '',
+        importSuccess: {
+            success: false,
+            rows: '',
+        },
         formattedCategory: 'All Instruments',
+        fileData: Object,
         instrumentCategories: [
             'gyro',
             'motion',
@@ -102,18 +140,30 @@ mainApp = new Vue({
         ],
     }),
     methods: {
-        getGyroData: function() {
+        getGyroData: function () {
             const url = "/api/gyrodata/?instrument=" + this.selectedInstrument.id;
             return axios
                 .get(url)
                 .then(response => {
                     this.showInstruments = true;
-                    return response.data
+                    return response.data;
                 })
                 .catch(error => {
                     console.log(error)
                 })
                 .finally(() => this.loading = false);
+        },
+        papaParse: function () {
+            for (i in this.importFileList) {
+                Papa.parse(this.importFileList[i], {
+                    complete: async results => {
+                        this.fileData = results.data;
+                        console.log("Parsing complete:")
+                        this.importSuccess.success = true;
+                        this.importSuccess.rows = results.data.length;
+                    }
+                });
+            }
         },
         loadGyroData: async function () {
             this.gyroData = await this.getGyroData();
@@ -188,7 +238,7 @@ mainApp = new Vue({
                     return colors[4].color;
             }
         },
-        getFormattedCategory: function(category) {
+        getFormattedCategory: function (category) {
             switch (category) {
                 case 'gyro':
                     return 'Gyro';

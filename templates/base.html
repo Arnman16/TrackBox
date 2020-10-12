@@ -114,6 +114,12 @@
               </v-list-item>
             </div>
           </div>
+          <v-divider dark class="my-4"></v-divider>
+          <v-list-item>
+            <v-btn color="red lighten-2" dark @click="importDialog=true, drawer=false">
+              Import Data
+            </v-btn>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
       <v-app-bar dense hide-on-scroll app dark>
@@ -206,7 +212,8 @@
           <v-container>
             <v-row>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field v-model="selectedInstrument.name" label="Instrument Name" required>
+                <v-text-field v-model="selectedInstrument.name" label="Instrument Name" hint="Name this instrument"
+                  required>
                 </v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="4">
@@ -215,8 +222,8 @@
 
               </v-col>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field label="Location" v-model="selectedInstrument.location"
-                  hint="example of persistent helper text" persistent-hint required>
+                <v-text-field label="Location" v-model="selectedInstrument.location" hint="Physical location of sensor."
+                  required>
                 </v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
@@ -258,6 +265,42 @@
         </v-card>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="importDialog" width="550">
+      <v-card>
+        <v-card-title class="headline grey lighten-2">
+          Import Data Files
+        </v-card-title>
+
+        <v-card-text>
+          <p>
+            Import comma separated serial data files.
+          </p>
+          <p>
+            For correct timestamps, please use this format:</p>
+          <p>YYYY/mm/dd, HH:MM:ss <br>ex. 2020/03/16, 22:11:00</p>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-file-input type="file" v-model="importFileList" small-chips multiple label="Serial Data Log Files"></v-file-input>
+          <br>
+          <v-btn @click="papaParse()">IMPORT</v-btn>
+        </v-card-actions>
+        <v-alert
+        dense
+        text
+        v-model="importSuccess.success"
+        type="success"
+      >
+        <strong><% importSuccess.rows %></strong> rows<strong> successfully imported.
+      </v-alert>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="importDialog = false">
+            Done
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
   <script src='{% static 'js/jquery-3.5.1.min.js' %}'></script>
   <script src='{% static 'js/fontawesome.js' %}'></script>
@@ -266,6 +309,7 @@
   <script src="{% static 'vue/js/vuex.js' %}"></script>
   <script src="{% static 'vue/js/vuetify.js' %}"></script>
   <script src="{% static 'vue/js/axios.min.js' %}"></script>
+  <script src="{% static 'js/papaparse.min.js' %}"></script>
   <script src="{% static 'js/myVue.js' %}"></script>
   <script>
     mainApp.loadJson();
